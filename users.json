@@ -1,0 +1,24 @@
+{
+    "users": [
+        {
+            "name": "Esraa",
+            "phone": "01000112233",
+            "email": "esraa@gmail.com",
+            "gender": "Female",
+            "governorate": "Monufia",
+            "password": "fjgjyfyrf",
+            "age": 19,
+            "national_id": "16395836548906"
+        },
+        {
+            "name": "laila",
+            "phone": "01000112223",
+            "email": "laila@gmail.com",
+            "gender": "Female",
+            "governorate": "Fayoum",
+            "password": "wjhjwhdj",
+            "age": 24,
+            "national_id": "73847373737372"
+        }
+    ]
+}
