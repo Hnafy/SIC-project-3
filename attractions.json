@@ -1,0 +1,68 @@
+{
+    "attractions": [
+        {
+            "name": "Pyramids of Giza",
+            "governorate": "Giza",
+            "price": 400,
+            "rating": 4.9,
+            "visit_time": 3,
+            "category": "Historical Sites"
+        },
+        {
+            "name": "Egyptian Museum",
+            "governorate": "Cairo",
+            "price": 200,
+            "rating": 4.5,
+            "visit_time": 2,
+            "category": "Museums"
+        },
+        {
+            "name": "Nubian Museum",
+            "governorate": "Aswan",
+            "price": 140,
+            "rating": 4.6,
+            "visit_time": 2,
+            "category": "Museums"
+        },
+        {
+            "name": "Karnak Temple",
+            "governorate": "Luxor",
+            "price": 250,
+            "rating": 4.8,
+            "visit_time": 2.5,
+            "category": "Historical Sites"
+        },
+        {
+            "name": "Valley of the Kings",
+            "governorate": "Luxor",
+            "price": 300,
+            "rating": 4.7,
+            "visit_time": 3,
+            "category": "Historical Sites"
+        },
+        {
+            "name": "Abu Simbel Temples",
+            "governorate": "Aswan",
+            "price": 400,
+            "rating": 4.9,
+            "visit_time": 2,
+            "category": "Historical Sites"
+        },
+        {
+            "name": "Siwa Oasis",
+            "governorate": "Matrouh",
+            "price": 0,
+            "rating": 4.7,
+            "visit_time": 8,
+            "category": "Nature"
+        },
+        {
+            "name": "White Desert",
+            "governorate": "New Valley",
+            "price": 50,
+            "rating": 4.8,
+            "visit_time": 6,
+            "category": "Nature"
+        }
+    ]
+}

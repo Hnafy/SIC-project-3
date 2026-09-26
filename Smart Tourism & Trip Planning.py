@@ -1,15 +1,25 @@
 import json
 import os
 
-navigation_stack = []
+CATEGORIES = [
+    "Museums",
+    "Historical Sites",
+    "Nature",
+    "Adventure",
+    "Cultural Attractions"
+]
 
 def load_users():
     file_path = os.path.join(os.path.dirname(__file__), "users.json")
+
+    if not os.path.exists(file_path):
+        return []
 
     with open(file_path, "r") as file:
         data = json.load(file)
 
     return data["users"]
+
 
 def save_users(users):
     file_path = os.path.join(os.path.dirname(__file__), "users.json")
@@ -45,11 +55,11 @@ def register():
 
     email = input("Enter your email: ")
 
-    while "@" not in email or "." not in email: 
+    while "@" not in email or "." not in email:
         print("Invalid email.")
         email = input("Enter your email: ")
 
-    while any(user["email"] == email for user in users): 
+    while any(user["email"] == email for user in users):
         print("Email is already registered.")
         email = input("Enter your email: ")
 
@@ -84,13 +94,13 @@ def register():
         choice = input("Choose your governorate: ")
 
     governorate = governorates[int(choice) - 1]
-    
+
     password = input("Enter your password: ")
 
     while len(password) < 8:
         print("Password must be at least 8 characters.")
         password = input("Enter your password: ")
-    
+
     age = input("Enter your age: ")
 
     while not valid_age(age):
@@ -104,12 +114,6 @@ def register():
     while not valid_national_id(national_id):
         print("Invalid national_id, Enter 14 digits.")
         national_id = input("Enter your national_id: ")
-
-
-    for user in users:
-        if user["email"] == email:
-            print("Email is already registered.")
-            return
 
     new_user = {
         "name": name,
@@ -127,15 +131,17 @@ def register():
 
     print("Registration successful!")
 
+
 def valid_phone(phone):
     return phone.isdigit() and len(phone) == 11
+
 
 def valid_national_id(national_id):
     return national_id.isdigit() and len(national_id) == 14
 
+
 def valid_age(age):
     return age.isdigit() and 1 <= int(age) <= 100
-
 
 
 def login():
@@ -154,49 +160,353 @@ def login():
         if user["email"] == email and user["password"] == password:
             print(f"Welcome {user['name']}!")
             return email
-        
+
     print("Invalid email or password.")
     return None
 
 
-def go_to(page):
-    navigation_stack.append(page)
+def load_attractions():
+    file_path = os.path.join(os.path.dirname(__file__), "attractions.json")
+
+    if not os.path.exists(file_path):
+        return []
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+
+    return data["attractions"]
 
 
-def go_back():
-    if navigation_stack:
-        return navigation_stack.pop()
+def save_attractions(attractions):
+    file_path = os.path.join(os.path.dirname(__file__), "attractions.json")
+
+    with open(file_path, "w") as file:
+        json.dump({"attractions": attractions}, file, indent=4)
+
+
+def valid_price(value):
+    try:
+        return float(value) >= 0
+    except ValueError:
+        return False
+
+
+def valid_rating(value):
+    try:
+        rating = float(value)
+        return 0 <= rating <= 5
+    except ValueError:
+        return False
+
+
+def browse_categories():
+    pass
+
+def sort_attractions():
+    pass
+
+def binary_search(arr, target, field, start, end):
+    if start > end:
+        return None
+
+    mid = (start + end) // 2
+
+    value = arr[mid][field].lower()
+
+    if value == target:
+        return arr[mid]
+
+    if target < value:
+        return binary_search(arr, target, field, start, mid - 1)
+
+    return binary_search(arr, target, field, mid + 1, end)
+
+def search_attractions():
+    attractions = load_attractions()
+
+    print("\n--- Search ---")
+    print("1. Search by Name")
+    print("2. Search by Governorate")
+    print("3. Back")
+
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        field = "name"
+        keyword = input("Enter attraction name: ").strip().lower()
+
+    elif choice == "2":
+        field = "governorate"
+        keyword = input("Enter governorate: ").strip().lower()
+
+    elif choice == "3":
+        return
+
+    else:
+        print("Invalid choice.")
+        return
+
+    attractions.sort(key=lambda a: a[field].lower())
+
+    result = binary_search(
+        attractions,
+        keyword,
+        field,
+        0,
+        len(attractions) - 1
+    )
+
+    if result is None:
+        print("No attractions found.")
+        return
+
+    print("\n--- Search Result ---")
+    print(
+        f"{result['name']} - "
+        f"{result['governorate']} - "
+        f"{result['category']}"
+    )
+
+
+def admin_panel():
+    while True:
+        print("\n===== Admin Panel =====")
+        print("1. View All Attractions")
+        print("2. Add Attraction")
+        print("3. Update Attraction")
+        print("4. Remove Attraction")
+        print("5. Back")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            view_all_attractions()
+        elif choice == "2":
+            add_attraction()
+        elif choice == "3":
+            update_attraction()
+        elif choice == "4":
+            remove_attraction()
+        elif choice == "5":
+            return
+        else:
+            print("Invalid choice.")
+
+
+def view_all_attractions():
+    attractions = load_attractions()
+
+    print("\n--- All Attractions ---")
+
+    if not attractions:
+        print("No attractions found.")
+        return
+
+    for i, a in enumerate(attractions, 1):
+        print(f"{i}. {a['name']} | {a['governorate']} | {a['category']} | "
+              f"{a['price']} EGP | Rating {a['rating']} | {a['visit_time']}h")
+
+
+def add_attraction():
+    attractions = load_attractions()
+
+    print("\n--- Add New Attraction ---")
+
+    name = input("Enter attraction name: ")
+
+    while not name.strip():
+        print("Name can't be empty.")
+        name = input("Enter attraction name: ")
+
+    while any(a["name"].lower() == name.lower() for a in attractions):
+        print("An attraction with this name already exists.")
+        name = input("Enter attraction name: ")
+
+    governorate = input("Enter governorate: ")
+
+    while not governorate.strip():
+        print("Governorate can't be empty.")
+        governorate = input("Enter governorate: ")
+
+    price = input("Enter ticket price (EGP): ")
+
+    while not valid_price(price):
+        print("Invalid price. Enter a positive number.")
+        price = input("Enter ticket price (EGP): ")
+
+    rating = input("Enter rating (0-5): ")
+
+    while not valid_rating(rating):
+        print("Invalid rating. Enter a number between 0 and 5.")
+        rating = input("Enter rating (0-5): ")
+
+    visit_time = input("Enter estimated visit time (in hours): ")
+
+    while not valid_price(visit_time):
+        print("Invalid visit time. Enter a positive number.")
+        visit_time = input("Enter estimated visit time (in hours): ")
+
+    print("\nCategories:")
+    for i, category in enumerate(CATEGORIES, 1):
+        print(f"{i}. {category}")
+
+    cat_choice = input("Choose a category: ")
+
+    while not cat_choice.isdigit() or not 1 <= int(cat_choice) <= len(CATEGORIES):
+        print("Invalid choice.")
+        cat_choice = input("Choose a category: ")
+
+    new_attraction = {
+        "name": name,
+        "governorate": governorate,
+        "price": float(price),
+        "rating": float(rating),
+        "visit_time": float(visit_time),
+        "category": CATEGORIES[int(cat_choice) - 1]
+    }
+
+    attractions.append(new_attraction)
+    save_attractions(attractions)
+
+    print("Attraction added successfully!")
+
+
+def find_attraction_by_name(attractions):
+    name = input("Enter the exact name of the attraction: ").strip().lower()
+
+    for a in attractions:
+        if a["name"].lower() == name:
+            return a
+
     return None
+
+
+def update_attraction():
+    attractions = load_attractions()
+
+    print("\n--- Update Attraction ---")
+
+    if not attractions:
+        print("No attractions found.")
+        return
+
+    target = find_attraction_by_name(attractions)
+
+    if not target:
+        print("Attraction not found.")
+        return
+
+    while True:
+        print(f"\nEditing: {target['name']}")
+        print("1. Update Name")
+        print("2. Update Governorate")
+        print("3. Update Ticket Price")
+        print("4. Update Rating")
+        print("5. Update Visit Time")
+        print("6. Update Category")
+        print("7. Save & Back")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            new_name = input("Enter new name: ")
+            if new_name.strip():
+                target["name"] = new_name
+            else:
+                print("Name can't be empty.")
+
+        elif choice == "2":
+            new_gov = input("Enter new governorate: ")
+            if new_gov.strip():
+                target["governorate"] = new_gov
+            else:
+                print("Governorate can't be empty.")
+
+        elif choice == "3":
+            price = input("Enter new ticket price: ")
+            while not valid_price(price):
+                print("Invalid price.")
+                price = input("Enter new ticket price: ")
+            target["price"] = float(price)
+
+        elif choice == "4":
+            rating = input("Enter new rating (0-5): ")
+            while not valid_rating(rating):
+                print("Invalid rating.")
+                rating = input("Enter new rating (0-5): ")
+            target["rating"] = float(rating)
+
+        elif choice == "5":
+            visit_time = input("Enter new visit time (in hours): ")
+            while not valid_price(visit_time):
+                print("Invalid visit time.")
+                visit_time = input("Enter new visit time (in hours): ")
+            target["visit_time"] = float(visit_time)
+
+        elif choice == "6":
+            for i, category in enumerate(CATEGORIES, 1):
+                print(f"{i}. {category}")
+            cat_choice = input("Choose a category: ")
+            if cat_choice.isdigit() and 1 <= int(cat_choice) <= len(CATEGORIES):
+                target["category"] = CATEGORIES[int(cat_choice) - 1]
+            else:
+                print("Invalid choice.")
+
+        elif choice == "7":
+            save_attractions(attractions)
+            print("Attraction updated successfully!")
+            return
+
+        else:
+            print("Invalid choice.")
+
+
+def remove_attraction():
+    attractions = load_attractions()
+
+    print("\n--- Remove Attraction ---")
+
+    if not attractions:
+        print("No attractions found.")
+        return
+
+    target = find_attraction_by_name(attractions)
+
+    if not target:
+        print("Attraction not found.")
+        return
+
+    confirm = input(f"Are you sure you want to remove '{target['name']}'? (yes/no): ").strip().lower()
+
+    if confirm == "yes":
+        attractions.remove(target)
+        save_attractions(attractions)
+        print("Attraction removed successfully!")
+    else:
+        print("Cancelled.")
 
 
 def user_home():
     while True:
         print("\n===== User Home =====")
         print("1. Browse Categories")
-        print("2. My Trip")
-        print("3. Back")
+        print("2. Search Attractions")
+        print("3. Sort Attractions")
+        print("4. Back")
 
         choice = input("Choose an option: ")
 
         if choice == "1":
-            go_to("User Home")
-            print("Categories")
-
+            browse_categories()
         elif choice == "2":
-            go_to("User Home")
-            print("My Trip")
-
+            search_attractions()
         elif choice == "3":
-            previous_page = go_back()
-
-            if previous_page:
-                print(f"Back to {previous_page}")
-            else:
-                print("No previous page.")
-
+            sort_attractions()
+        elif choice == "4":
+            return
         else:
             print("Invalid choice.")
-    
+
 
 def main_menu():
     while True:
@@ -210,8 +520,11 @@ def main_menu():
         if choice == "1":
             result = login()
 
-            if result is not None:
+            if result == "admin":
+                admin_panel()
+            elif result is not None:
                 user_home()
+
         elif choice == "2":
             register()
 
