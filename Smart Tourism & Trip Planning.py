@@ -221,6 +221,7 @@ def valid_rating(value):
     except ValueError:
         return False
 
+
 def browse_categories():
     attractions = load_attractions()
 
@@ -300,6 +301,8 @@ def attraction_page(attraction):
             return
         else:
             print("Invalid choice.")
+
+
 def merge_sort(arr, key):
     if len(arr) <= 1:
         return arr
@@ -388,7 +391,6 @@ def sort_attractions():
         attraction_page(results[int(choice) - 1])
 
 
-# My Trip + Trip Total Cost feature
 def view_my_trip():
     global my_trip
 
@@ -481,6 +483,7 @@ def binary_search(arr, target, field, start, end):
 
     return binary_search(arr, target, field, mid + 1, end)
 
+
 def search_attractions():
     attractions = load_attractions()
 
@@ -526,30 +529,6 @@ def search_attractions():
         f"{result['governorate']} - "
         f"{result['category']}"
     )
-
-def admin_panel():
-    while True:
-        print("\n===== Admin Panel =====")
-        print("1. View All Attractions")
-        print("2. Add Attraction")
-        print("3. Update Attraction")
-        print("4. Remove Attraction")
-        print("5. Back")
-
-        choice = input("Choose an option: ")
-
-        if choice == "1":
-            view_all_attractions()
-        elif choice == "2":
-            add_attraction()
-        elif choice == "3":
-            update_attraction()
-        elif choice == "4":
-            remove_attraction()
-        elif choice == "5":
-            return
-        else:
-            print("Invalid choice.")
 
 
 def view_all_attractions():
@@ -745,57 +724,82 @@ def remove_attraction():
         print("Cancelled.")
 
 
-def user_home():
-    while True:
-        print("\n===== User Home =====")
-        print("1. Browse Categories")
-        print("2. Search Attractions")
-        print("3. Sort Attractions")
-        print("4. My Trip")
-        print("5. Back")
-
-        choice = input("Choose an option: ")
-
-        if choice == "1":
-            browse_categories()
-        elif choice == "2":
-            search_attractions()
-        elif choice == "3":
-            sort_attractions()
-        elif choice == "4":
-            view_my_trip()
-        elif choice == "5":
-            return
-        else:
-            print("Invalid choice.")
-
-
 def main_menu():
+    global my_trip
+    current_menu = "main"
+
     while True:
-        print("\n===== Egypt Explorer =====")
-        print("1. Login")
-        print("2. Register")
-        print("3. Exit")
+        if current_menu == "main":
+            print("\n===== Egypt Explorer =====")
+            print("1. Login")
+            print("2. Register")
+            print("3. Exit")
 
-        choice = input("Choose an option: ")
+            choice = input("Choose an option: ")
 
-        if choice == "1":
-            result = login()
+            if choice == "1":
+                result = login()
 
-            if result == "admin":
-                admin_panel()
-            elif result is not None:
-                user_home()
+                if result == "admin":
+                    current_menu = "admin"
+                elif result is not None:
+                    current_menu = "user"
 
-        elif choice == "2":
-            register()
+            elif choice == "2":
+                register()
 
-        elif choice == "3":
-            print("Goodbye!")
-            break
+            elif choice == "3":
+                print("Goodbye!")
+                break
 
-        else:
-            print("Invalid choice. Please try again.")
+            else:
+                print("Invalid choice. Please try again.")
+
+        elif current_menu == "admin":
+            print("\n===== Admin Panel =====")
+            print("1. View All Attractions")
+            print("2. Add Attraction")
+            print("3. Update Attraction")
+            print("4. Remove Attraction")
+            print("5. Back")
+
+            choice = input("Choose an option: ")
+
+            if choice == "1":
+                view_all_attractions()
+            elif choice == "2":
+                add_attraction()
+            elif choice == "3":
+                update_attraction()
+            elif choice == "4":
+                remove_attraction()
+            elif choice == "5":
+                current_menu = "main"
+            else:
+                print("Invalid choice.")
+
+        elif current_menu == "user":
+            print("\n===== User Home =====")
+            print("1. Browse Categories")
+            print("2. Search Attractions")
+            print("3. Sort Attractions")
+            print("4. My Trip")
+            print("5. Back")
+
+            choice = input("Choose an option: ")
+
+            if choice == "1":
+                browse_categories()
+            elif choice == "2":
+                search_attractions()
+            elif choice == "3":
+                sort_attractions()
+            elif choice == "4":
+                view_my_trip()
+            elif choice == "5":
+                current_menu = "main"
+            else:
+                print("Invalid choice.")
 
 
 main_menu()
