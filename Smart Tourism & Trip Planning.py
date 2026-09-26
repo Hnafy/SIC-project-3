@@ -9,6 +9,29 @@ CATEGORIES = [
     "Cultural Attractions"
 ]
 
+my_trip = []
+
+TRANSPORT_COST = {
+    "Cairo": 100,
+    "Giza": 120,
+    "Alexandria": 200,
+    "Luxor": 300,
+    "Aswan": 350,
+    "Monufia": 80,
+    "Dakahlia": 90,
+    "Qalyubia": 80,
+    "Sharqia": 90,
+    "Gharbia": 90,
+    "Beheira": 100,
+    "Fayoum": 110,
+    "Matrouh": 250,
+    "New Valley": 280,
+    "South Sinai": 280,
+    "Red Sea": 300
+}
+DEFAULT_TRANSPORT_COST = 100
+
+
 def load_users():
     file_path = os.path.join(os.path.dirname(__file__), "users.json")
 
@@ -222,6 +245,7 @@ def browse_categories():
         filtered = [a for a in attractions if a["category"] == category]
         show_attractions_by_category(category, filtered)
 
+
 def show_attractions_by_category(category, attractions):
     while True:
         print(f"\n--- {category} ---")
@@ -248,6 +272,8 @@ def show_attractions_by_category(category, attractions):
 
 
 def attraction_page(attraction):
+    global my_trip
+
     while True:
         print(f"\n--- {attraction['name']} ---")
         print(f"Governorate: {attraction['governorate']}")
@@ -255,15 +281,25 @@ def attraction_page(attraction):
         print(f"Ticket Price: {attraction['price']} EGP")
         print(f"Rating: {attraction['rating']} / 5")
         print(f"Estimated Visit Time: {attraction['visit_time']} hour(s)")
-        print("\n1. Back")
+
+        in_trip = any(t["name"] == attraction["name"] for t in my_trip)
+
+        print("\n1. Remove from My Trip" if in_trip else "\n1. Add to My Trip")
+        print("2. Back")
 
         choice = input("Choose an option: ")
 
         if choice == "1":
+            if in_trip:
+                my_trip[:] = [t for t in my_trip if t["name"] != attraction["name"]]
+                print("Removed from My Trip.")
+            else:
+                my_trip.append(attraction)
+                print("Added to My Trip.")
+        elif choice == "2":
             return
         else:
             print("Invalid choice.")
-
 def merge_sort(arr, key):
     if len(arr) <= 1:
         return arr
@@ -275,6 +311,7 @@ def merge_sort(arr, key):
 
     return merge(left, right, key)
 
+
 def merge(left, right, key):
     result = []
 
@@ -282,8 +319,7 @@ def merge(left, right, key):
     j = 0
 
     while i < len(left) and j < len(right):
-
-        if left[i][key] <= right[j][key]:
+        if key(left[i]) <= key(right[j]):
             result.append(left[i])
             i += 1
         else:
@@ -308,14 +344,13 @@ def sort_attractions():
     choice = input("Choose an option: ")
 
     if choice == "1":
-        results = merge_sort(attractions, "price")
+        results = merge_sort(attractions, lambda a: a["price"])
 
     elif choice == "2":
-        results = merge_sort(attractions, "rating")
-        results.reverse()
+        results = merge_sort(attractions, lambda a: -a["rating"])
 
     elif choice == "3":
-        results = merge_sort(attractions, "visit_time")
+        results = merge_sort(attractions, lambda a: a["visit_time"])
 
     elif choice == "4":
         return
@@ -351,6 +386,83 @@ def sort_attractions():
             continue
 
         attraction_page(results[int(choice) - 1])
+
+
+# My Trip + Trip Total Cost feature
+def view_my_trip():
+    global my_trip
+
+    while True:
+        print("\n--- My Trip ---")
+
+        if not my_trip:
+            print("Your trip is empty.")
+            print("1. Back")
+
+            choice = input("Choose an option: ")
+
+            if choice == "1":
+                return
+            else:
+                print("Invalid choice.")
+                continue
+
+        for i, a in enumerate(my_trip, 1):
+            print(f"{i}. {a['name']} - {a['governorate']} - {a['price']} EGP")
+
+        remove_option = len(my_trip) + 1
+        summary_option = len(my_trip) + 2
+        back_option = len(my_trip) + 3
+
+        print(f"{remove_option}. Remove an Attraction")
+        print(f"{summary_option}. View Final Summary (Trip Total Cost)")
+        print(f"{back_option}. Back")
+
+        choice = input("Choose an option: ")
+
+        if choice == str(remove_option):
+            index = input("Enter the number of the attraction to remove: ")
+
+            if index.isdigit() and 1 <= int(index) <= len(my_trip):
+                removed = my_trip.pop(int(index) - 1)
+                print(f"Removed {removed['name']} from My Trip.")
+            else:
+                print("Invalid choice.")
+
+        elif choice == str(summary_option):
+            show_final_summary()
+
+        elif choice == str(back_option):
+            return
+
+        else:
+            print("Invalid choice.")
+
+
+def show_final_summary():
+    global my_trip
+
+    print("\n--- Final Trip Summary ---")
+
+    if not my_trip:
+        print("Your trip is empty.")
+        return
+
+    tickets_total = 0
+    governorates = set()
+
+    for a in my_trip:
+        print(f"- {a['name']} ({a['governorate']}) - {a['price']} EGP")
+        tickets_total += a["price"]
+        governorates.add(a["governorate"])
+
+    transport_total = sum(TRANSPORT_COST.get(g, DEFAULT_TRANSPORT_COST) for g in governorates)
+    trip_total_cost = tickets_total + transport_total
+
+    print(f"\nGovernorates visited: {', '.join(governorates)}")
+    print(f"Tickets Total: {tickets_total} EGP")
+    print(f"Transportation Cost: {transport_total} EGP")
+    print(f"Trip Total Cost: {trip_total_cost} EGP")
 
 
 def binary_search(arr, target, field, start, end):
@@ -394,7 +506,7 @@ def search_attractions():
         print("Invalid choice.")
         return
 
-    attractions.sort(key=lambda a: a[field].lower())
+    attractions = merge_sort(attractions, lambda a: a[field].lower())
 
     result = binary_search(
         attractions,
@@ -414,7 +526,6 @@ def search_attractions():
         f"{result['governorate']} - "
         f"{result['category']}"
     )
-
 
 def admin_panel():
     while True:
@@ -640,7 +751,8 @@ def user_home():
         print("1. Browse Categories")
         print("2. Search Attractions")
         print("3. Sort Attractions")
-        print("4. Back")
+        print("4. My Trip")
+        print("5. Back")
 
         choice = input("Choose an option: ")
 
@@ -651,6 +763,8 @@ def user_home():
         elif choice == "3":
             sort_attractions()
         elif choice == "4":
+            view_my_trip()
+        elif choice == "5":
             return
         else:
             print("Invalid choice.")

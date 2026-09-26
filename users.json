@@ -19,6 +19,16 @@
             "password": "wjhjwhdj",
             "age": 24,
             "national_id": "73847373737372"
+        },
+        {
+            "name": "ahmed",
+            "phone": "01061356169",
+            "email": "ahmed@gmail.com",
+            "gender": "Male",
+            "governorate": "Giza",
+            "password": "ahmed123",
+            "age": 19,
+            "national_id": "30709271701888"
         }
     ]
 }
