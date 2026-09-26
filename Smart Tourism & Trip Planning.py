@@ -198,12 +198,160 @@ def valid_rating(value):
     except ValueError:
         return False
 
-
 def browse_categories():
-    pass
+    attractions = load_attractions()
+
+    while True:
+        print("\n--- Categories ---")
+
+        for i, category in enumerate(CATEGORIES, 1):
+            print(f"{i}. {category}")
+
+        print(f"{len(CATEGORIES) + 1}. Back")
+
+        choice = input("Choose a category: ")
+
+        if choice == str(len(CATEGORIES) + 1):
+            return
+
+        if not choice.isdigit() or not 1 <= int(choice) <= len(CATEGORIES):
+            print("Invalid choice.")
+            continue
+
+        category = CATEGORIES[int(choice) - 1]
+        filtered = [a for a in attractions if a["category"] == category]
+        show_attractions_by_category(category, filtered)
+
+def show_attractions_by_category(category, attractions):
+    while True:
+        print(f"\n--- {category} ---")
+
+        if not attractions:
+            print("No attractions found in this category.")
+            return
+
+        for i, a in enumerate(attractions, 1):
+            print(f"{i}. {a['name']} - {a['governorate']} - {a['price']} EGP")
+
+        print(f"{len(attractions) + 1}. Back")
+
+        choice = input("Choose an attraction to view: ")
+
+        if choice == str(len(attractions) + 1):
+            return
+
+        if not choice.isdigit() or not 1 <= int(choice) <= len(attractions):
+            print("Invalid choice.")
+            continue
+
+        attraction_page(attractions[int(choice) - 1])
+
+
+def attraction_page(attraction):
+    while True:
+        print(f"\n--- {attraction['name']} ---")
+        print(f"Governorate: {attraction['governorate']}")
+        print(f"Category: {attraction['category']}")
+        print(f"Ticket Price: {attraction['price']} EGP")
+        print(f"Rating: {attraction['rating']} / 5")
+        print(f"Estimated Visit Time: {attraction['visit_time']} hour(s)")
+        print("\n1. Back")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            return
+        else:
+            print("Invalid choice.")
+
+def merge_sort(arr, key):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+
+    left = merge_sort(arr[:mid], key)
+    right = merge_sort(arr[mid:], key)
+
+    return merge(left, right, key)
+
+def merge(left, right, key):
+    result = []
+
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+
+        if left[i][key] <= right[j][key]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
 
 def sort_attractions():
-    pass
+    attractions = load_attractions()
+
+    print("\n--- Sort Attractions ---")
+    print("1. By Price (Low to High)")
+    print("2. By Rating (High to Low)")
+    print("3. By Visit Time (Shortest First)")
+    print("4. Back")
+
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        results = merge_sort(attractions, "price")
+
+    elif choice == "2":
+        results = merge_sort(attractions, "rating")
+        results.reverse()
+
+    elif choice == "3":
+        results = merge_sort(attractions, "visit_time")
+
+    elif choice == "4":
+        return
+
+    else:
+        print("Invalid choice.")
+        return
+
+    if not results:
+        print("No attractions found.")
+        return
+
+    while True:
+        print("\n--- Sorted Attractions ---")
+
+        for i, a in enumerate(results, 1):
+            print(
+                f"{i}. {a['name']} - "
+                f"{a['price']} EGP - "
+                f"Rating {a['rating']} - "
+                f"{a['visit_time']}h"
+            )
+
+        print(f"{len(results) + 1}. Back")
+
+        choice = input("Choose an attraction to view: ")
+
+        if choice == str(len(results) + 1):
+            return
+
+        if not choice.isdigit() or not 1 <= int(choice) <= len(results):
+            print("Invalid choice.")
+            continue
+
+        attraction_page(results[int(choice) - 1])
+
 
 def binary_search(arr, target, field, start, end):
     if start > end:
